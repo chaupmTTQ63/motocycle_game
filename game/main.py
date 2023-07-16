@@ -84,9 +84,6 @@ def is_refuel(gas_station, bike):
     if int(bike.y) <= int(gas_station.ls[0] + GAS_STATION_HEIGHT):
         return True
 
-def is_levelup(score):
-    return False
-
 #Lose game
 def isGameover(bike, obstacles, gas):
     if gas.CONSUMELIMIT == 0:
@@ -150,8 +147,8 @@ def gameStart(bg, displaysurf):
         fpsClock.tick(FPS)
 
 
-#
-def gamePlay(displaysurf,bg, bike, obstacles, score, gas, gas_station, level):
+
+def gamePlay(displaysurf,bg, bike, obstacles, score, gas, gas_station, level, BGSPEED, BIKESPEED, OBSTACLESSPEED):
     bike.__init__(BIKEWIDTH, BIKEHEIGHT, displaysurf, BIKEIMG, BIKESPEED, BIKE_X, BIKE_Y)
     obstacles.__init__(displaysurf, OBWIDTH, OBHEIGHT, DISTANCE, OBSTACLESSPEED, CHANGESPEED, OBSTACLESIMG)
     bg.__init__(displaysurf, BGSPEED, BGIMG, BG_X, BG_Y)
@@ -163,10 +160,10 @@ def gamePlay(displaysurf,bg, bike, obstacles, score, gas, gas_station, level):
     moveRight = False
     brake = False
     while True:
-        if gas.CONSUMELIMIT < 0.5:
+        if gas.CONSUMELIMIT < BGSPEED/6:
             gas.CONSUMELIMIT = 0
         else:
-            gas.CONSUMELIMIT -= 0.5
+            gas.CONSUMELIMIT -= BGSPEED/6
         gas.CONSUMEHEIGHT = 217 * gas.CONSUMELIMIT/1000
         gas.CONSIMG = pygame.image.load('image/Red.png')
         gas.CONSIMG = pygame.transform.scale(CONSIMG, (CONSUMEWIDTH, CONSUMEHEIGHT))
@@ -207,12 +204,17 @@ def gamePlay(displaysurf,bg, bike, obstacles, score, gas, gas_station, level):
         obstacles.update()
         obstacles.pump_brake(brake,OBSTACLESSPEED)
         score.draw()
-        score.update()
+        score.update(bg.speed)
         gas_station.draw()
         gas_station.update()
         gas_station.pump_brake(brake, BGSPEED)
         level.draw()
         level.update(score.score)
+        if level.level - level.last_level == 1:
+            BGSPEED += 1
+            BIKESPEED += 1
+            OBSTACLESSPEED += 1
+            level.last_level = level.level
         pygame.display.update()
         fpsClock.tick(FPS)
 # Build game over func
@@ -261,7 +263,7 @@ def main():
     level = Level(displaysurf)
     gameStart(bg, displaysurf)
     while True:
-        gamePlay(displaysurf, bg, bike, obstacles, score, gas, gas_station, level)
+        gamePlay(displaysurf, bg, bike, obstacles, score, gas, gas_station, level, BGSPEED, BIKESPEED, OBSTACLESSPEED)
         gameOver(displaysurf, bg, bike, obstacles, score, gas, gas_station, level)
 
 if __name__ == '__main__':

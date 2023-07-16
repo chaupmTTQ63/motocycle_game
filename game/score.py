@@ -10,8 +10,8 @@ class Score():
         scoreSuface = font.render('Score: '+str(int(self.score)), True, (0, 0, 0))
         self.displaysurf.blit(scoreSuface, (10, 10))
 
-    def update(self):
-        self.score += 0.02
+    def update(self, BGSPEED):
+        self.score += 2*BGSPEED/300
         
     def get_score(self):
         return self.score
